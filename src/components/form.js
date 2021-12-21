@@ -1,5 +1,7 @@
-import React, {useState} from "react";
+import React, {useState, useEffect} from "react";
 import styled from "styled-components";
+
+import { useCalculationContext } from "./body";
 
 const Main = styled.div`
     align-items: center;
@@ -35,16 +37,39 @@ const MetricChoice = styled.p`
     color: ${({chosen}) => chosen ? "white" : `rgba(255, 255, 255, 0.4)`};
 `;
 
+function countInArray(array, checkedValue){
+    return array.reduce((count, element) => count + (element === checkedValue ? 1 : 0), 0)
+}
+
 export default function Form () {
     const[height, setHeight] = useState("");
     const[weight, setWeight] = useState("");
-    const[isMetric, setIsMetric] = useState(true)
+    const[isMetric, setIsMetric] = useState(true);
+    const[calculation, setCalculation] = useCalculationContext();
 
     const listOfNumber = Array.from({length: 10}, (_,i) => i.toString());
-    const setOfValidCharacter = new Set(listOfNumber.concat(["."]))
+    const setOfValidCharacter = new Set(listOfNumber.concat(["."]));
 
-    function countInArray(array, checkedValue){
-        return array.reduce((count, element) => count + (element === checkedValue ? 1 : 0), 0)
+    useEffect(() => {
+        calculateBMI();
+    }, [height, weight])
+
+    function calculateBMI(){
+        const floatHeight = parseFloat(height);
+        const floatWeight = parseFloat(weight);
+        console.log(floatWeight);
+        if (floatHeight.toString() !== "NaN" && floatWeight.toString() !== "NaN"){
+            let calculationResult = floatWeight/(floatHeight**2);
+            if (isMetric){
+                calculationResult = calculationResult*10000;
+            } else {
+                calculationResult = calculationResult*703;
+            }
+            if (calculationResult !== NaN){
+                console.log(calculationResult);
+                setCalculation(calculationResult);
+            }   
+        }
     }
 
     function handleChange(e, valueInside, setValueInside){
