@@ -1,4 +1,6 @@
-import logo from './logo.svg';
+import React from "react";
+import styled from "styled-components";
+
 import './App.css';
 
 import Body from './components/body';
@@ -6,13 +8,19 @@ import Header from './components/header';
 
 import {GlobalTransition} from './GlobalComponent';
 
+const Main = styled.div`
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+`;
+
 function App() {
   return (
-    <>
+    <Main>
       <GlobalTransition />
       <Header />
       <Body />
-    </>
+    </Main>
   );
 }
 

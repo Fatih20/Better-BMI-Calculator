@@ -11,6 +11,9 @@ export function useCalculationContext(){
 }
 
 const Main = styled.div`
+    align-items: center;
+    display: flex;
+    flex-direction: column;
 `;
 
 
