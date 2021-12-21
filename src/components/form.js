@@ -54,6 +54,12 @@ export default function Form () {
         calculateBMI();
     }, [height, weight])
 
+    useEffect(() => {
+        setHeight("");
+        setWeight("");
+        setCalculation(null);
+    }, [isMetric]);
+
     function calculateBMI(){
         const floatHeight = parseFloat(height);
         const floatWeight = parseFloat(weight);
