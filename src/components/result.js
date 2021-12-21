@@ -37,7 +37,6 @@ const ChartContainer = styled.div`
 export default function Result () {
     const [calculation, setCalculation] = useCalculationContext();
     const [bodyType, setBodyType] = useState(null);
-    console.log(calculation);
 
     useEffect(() => {
         // console.log(bodyType);
@@ -105,16 +104,18 @@ export default function Result () {
     }
 
     function dataProducer (givenBodyType){
-        const value = [dataOfBodyType[bodyType]["lower"]-2, 0, dataOfBodyType[bodyType]["upper"]+2];
-        const nameOfValue = ["bottom", "middle", "upper"]
-        return (
-            Array.from(bodyTypeAround(givenBodyType), (includedBodyType, index) => {
-            return {"name" : includedBodyType}
-        }).forEach((object, index) => {
-            object[nameOfValue[index]] = value[index]
+        const value = [dataOfBodyType[bodyType]["lower"], dataOfBodyType[bodyType]["upper"], dataOfBodyType[bodyType]["upper"]+2];
+        const nameOfValue = ["bottom", "middle", "upper"];
+        let result = [{"name" : "Fatih"}]
+
+        nameOfValue.forEach((name, index) => {
+            result[0][name] = value[index]
         })
-        )
-    }
+        console.log(result);
+
+        return result;
+    };
+
 
     if (calculation === null || bodyType === null){
         return (
@@ -132,12 +133,13 @@ export default function Result () {
                 <ChartContainer show={(bodyType === "Morbidly Obese" || bodyType === "") ? false : true}>
                     <BarChart data={dataProducer(bodyType)} layout="vertical" width={700} height={100}>
                         <ReferenceLine xAxisId={0} x={calculation.toFixed(2)} isFront={true} strokeWidth={3}>
-                            <Label value="You're here" position="insideTop" fill="white"/>
+                            {/* <Label value="You're here" position="insideTop" fill="white"/> */}
                         </ReferenceLine>
                         <YAxis dataKey="name" type="category" hide={true}/>
-                        <XAxis xAxisId={0} dataKey="value" type="number" domain={[dataOfBodyType[bodyType]["lower"]-2, dataOfBodyType[bodyType]["upper"]+2]} tickCount={3} interval="preserveStartEnd" />
-                        <Bar dataKey="middle" fill={dataOfBodyType[bodyType]["color"]}>
-                        </Bar>
+                        <XAxis xAxisId={0} dataKey="value" type="number" domain={[dataOfBodyType[bodyType]["lower"]-1, dataOfBodyType[bodyType]["upper"]+1]} ticks={[dataOfBodyType[bodyType]["lower"], dataOfBodyType[bodyType]["upper"]]} />
+                        <Bar dataKey="upper" stackId="a" fill={dataOfBodyType[bodyType]["color"]}/>
+                        <Bar dataKey="middle" stackId="a" fill={dataOfBodyType[bodyType]["color"]}/>
+                        <Bar dataKey="bottom" stackId="a" fill={dataOfBodyType[bodyType]["color"]}/>
                     </BarChart>
                 </ChartContainer>
             </Main>
