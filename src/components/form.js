@@ -2,11 +2,13 @@ import React, {useState} from "react";
 import styled from "styled-components";
 
 const Main = styled.div`
-    align-items: start;
+    align-items: center;
     background-color: #333333;
     border-radius: 5px;
-    padding: 20px;
-
+    color : white;
+    display: flex;
+    flex-direction: column;
+    padding: 10px 20px;
 `;
 
 const StyledInput = styled.input`
@@ -17,11 +19,20 @@ const FormBits = styled.div`
     align-items: center;
     display: flex;
     gap: 10px;
-    justify-content: center;
+    justify-content: start;
+    width: 250px;
 
-    & > p {
-        color: white;
-    }
+    /* border: solid 1px white; */
+`;
+
+const MetricChoiceContainer = styled.div`
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+`;
+
+const MetricChoice = styled.p`
+    color: ${({chosen}) => chosen ? "white" : `rgba(255, 255, 255, 0.4)`};
 `;
 
 export default function Form () {
@@ -81,7 +92,11 @@ export default function Form () {
                 <StyledInput value={height} onChange={(e) => handleChange(e, height, setHeight)}/>
                 <p>{unit[(isMetric.toString())]["height"]}</p>
             </FormBits>
-            
+            <MetricChoiceContainer>
+                <MetricChoice chosen={isMetric} onClick={(isMetric) => setIsMetric(prevIsMetric => prevIsMetric ? prevIsMetric : !prevIsMetric)}>Metric</MetricChoice>
+                <MetricChoice chosen={!isMetric} onClick={(isMetric) => setIsMetric(prevIsMetric => prevIsMetric ? !prevIsMetric : prevIsMetric)}>Imperial</MetricChoice>
+            </MetricChoiceContainer>
+
             
         </Main>
     )
