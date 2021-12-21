@@ -2,6 +2,7 @@ import React, {useState} from "react";
 import styled from "styled-components";
 
 const Main = styled.div`
+    align-items: start;
     background-color: #333333;
     border-radius: 5px;
     padding: 20px;
@@ -9,11 +10,24 @@ const Main = styled.div`
 `;
 
 const StyledInput = styled.input`
+    height: 100%;
+`;
+
+const FormBits = styled.div`
+    align-items: center;
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+
+    & > p {
+        color: white;
+    }
 `;
 
 export default function Form () {
     const[height, setHeight] = useState("");
     const[weight, setWeight] = useState("");
+    const[isMetric, setIsMetric] = useState(true)
 
     const listOfNumber = Array.from({length: 10}, (_,i) => i.toString());
     const setOfValidCharacter = new Set(listOfNumber.concat(["."]))
@@ -42,11 +56,33 @@ export default function Form () {
             setValueInside(e.target.value)
         }
     }
+
+    const unit = {
+        "true" : {
+            "weight" : "kg",
+            "height" : "cm",
+        },
+        "false" :{
+            "weight" : "lbs",
+            "height" : "in",
+        }
+    }
     
 
     return (
         <Main>
-            <StyledInput value={weight} onChange={(e) => handleChange(e, weight, setWeight)}/>
+            <FormBits>
+                <p>Weight</p>
+                <StyledInput value={weight} onChange={(e) => handleChange(e, weight, setWeight)}/>
+                <p>{unit[(isMetric.toString())]["weight"]}</p>
+            </FormBits>
+            <FormBits>
+                <p>Height</p>
+                <StyledInput value={height} onChange={(e) => handleChange(e, height, setHeight)}/>
+                <p>{unit[(isMetric.toString())]["height"]}</p>
+            </FormBits>
+            
+            
         </Main>
     )
 }
