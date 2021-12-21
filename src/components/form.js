@@ -57,7 +57,7 @@ export default function Form () {
     useEffect(() => {
         setHeight("");
         setWeight("");
-        setCalculation(20.808);
+        setCalculation(null);
     }, [isMetric]);
 
     function calculateBMI(){

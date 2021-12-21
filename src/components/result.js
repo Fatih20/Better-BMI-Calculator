@@ -21,7 +21,7 @@ const ChartContainer = styled.div`
 
 export default function Result () {
     const [calculation, setCalculation] = useCalculationContext();
-    const [bodyType, setBodyType] = useState("");
+    const [bodyType, setBodyType] = useState(null);
     const roundedCalculation = useRef(null);
     console.log(calculation);
 
@@ -51,11 +51,6 @@ export default function Result () {
     }
 
     const dataOfBodyType = {
-        "" :{
-            "lower" : 0,
-            "upper" : 0,
-            "color" : "white"
-        },
         "underweight" : {
             "lower" : 0,
             "upper" : 18.5,
@@ -83,17 +78,25 @@ export default function Result () {
         },
     }
 
-    return (
-        <Main>
-            <Index color={dataOfBodyType[bodyType]["color"]}>{calculation}</Index>
-                <ChartContainer show={(bodyType === "morbidly obese" || bodyType === "") ? false : true}>
-                    <BarChart data={[{"name" : "Fatih", "value" : dataOfBodyType[bodyType]["upper"]}]} layout="vertical" width={700} height={100}>
-                        <ReferenceLine xAxisId={0} x={calculation.toFixed()}/>
-                        <YAxis dataKey="name" type="category" hide={true}/>
-                        <XAxis xAxisId={0} dataKey="value" type="number" domain={[dataOfBodyType[bodyType]["lower"], dataOfBodyType[bodyType]["upper"]]} />
-                        <Bar dataKey="value" fill={dataOfBodyType[bodyType]["color"]}/>
-                    </BarChart>
-                </ChartContainer>
-        </Main>
-    )
+    if (calculation === null || bodyType === null){
+        return (
+            <>
+
+            </>
+        )
+    } else {
+        return (
+            <Main>
+                <Index color={dataOfBodyType[bodyType]["color"]}>{calculation}</Index>
+                    <ChartContainer show={(bodyType === "morbidly obese" || bodyType === "") ? false : true}>
+                        <BarChart data={[{"name" : "Fatih", "value" : dataOfBodyType[bodyType]["upper"]}]} layout="vertical" width={700} height={100}>
+                            <ReferenceLine xAxisId={0} x={calculation.toFixed()}/>
+                            <YAxis dataKey="name" type="category" hide={true}/>
+                            <XAxis xAxisId={0} dataKey="value" type="number" domain={[dataOfBodyType[bodyType]["lower"], dataOfBodyType[bodyType]["upper"]]} />
+                            <Bar dataKey="value" fill={dataOfBodyType[bodyType]["color"]}/>
+                        </BarChart>
+                    </ChartContainer>
+            </Main>
+        )
+    }
 }

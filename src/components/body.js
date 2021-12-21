@@ -19,7 +19,7 @@ const Main = styled.div`
 
 
 export default function Body () {
-    const[calculation, setCalculation] = useState(20.888);
+    const[calculation, setCalculation] = useState(null);
     return (
         <Main>
             <CalculationContext.Provider value={[calculation, setCalculation]}>
