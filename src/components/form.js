@@ -57,13 +57,13 @@ export default function Form () {
     useEffect(() => {
         setHeight("");
         setWeight("");
-        setCalculation(null);
+        setCalculation(20.808);
     }, [isMetric]);
 
     function calculateBMI(){
         const floatHeight = parseFloat(height);
         const floatWeight = parseFloat(weight);
-        console.log(floatWeight);
+        // console.log(floatWeight);
         if (floatHeight.toString() !== "NaN" && floatWeight.toString() !== "NaN"){
             let calculationResult = floatWeight/(floatHeight**2);
             if (isMetric){
@@ -79,7 +79,7 @@ export default function Form () {
     }
 
     function handleChange(e, valueInside, setValueInside){
-        console.log(e);
+        // console.log(e);
         if (e.nativeEvent.data === null && valueInside.length > 0){
             setValueInside((e.target.value).substring(0, (e.target.value).length))
         }
