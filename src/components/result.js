@@ -136,7 +136,7 @@ export default function Result () {
         }
 
         return domain;
-    }
+    };
 
     function tickProducer (){
         let tick = [dataOfBodyType[bodyType]["lower"], dataOfBodyType[bodyType]["upper"]]
@@ -144,30 +144,27 @@ export default function Result () {
             tick.pop()
         }
         return tick;
-    }
+    };
 
     function renderBodyType (indexOfIncludedBodyType){
         const includedBodyType = Object.keys(dataOfBodyType)[indexOfIncludedBodyType]
         return (
             <BodyType currentBodyType={includedBodyType === bodyType ? true : false} id={includedBodyType} color={dataOfBodyType[includedBodyType]["color"]}>{includedBodyType}</BodyType>
         )
-    }
+    };
 
     function barGenerator (){
         const data = dataProducer()[0];
         const listOfIncludedBodyType = includedBodyTypeProducer("body type");
-        console.log(listOfIncludedBodyType);
         let listOfBars = [];
-        console.log(data);
         Object.keys(data).forEach((position, index) => {
             listOfBars.push(
                 <Bar id={`${index}${position}`} stackId="a" dataKey={position} fill={dataOfBodyType[listOfIncludedBodyType[index]]["color"]} />
             )
         })
-        console.log(listOfBars);
 
         return listOfBars;
-    }
+    };
 
 
     if (calculation === null || bodyType === null){
@@ -190,9 +187,6 @@ export default function Result () {
                         </ReferenceLine>
                         <YAxis dataKey="name" type="category" hide={true}/>
                         <XAxis xAxisId={0} dataKey="value" type="number" domain={domainProducer()} ticks={tickProducer()} />
-                        {/* <Bar dataKey="bottom" stackId="a" fill={"yellow"}/>
-                        <Bar dataKey="middle" stackId="a" fill={"white"}/>
-                        <Bar dataKey="upper" stackId="a" fill={"red"}/> */}
                         {barGenerator()}
                     </BarChart>
                 </ChartContainer>

@@ -81,7 +81,7 @@ export default function Form () {
     }
 
     function handleChange(e, valueInside, setValueInside){
-        // console.log(e);
+        console.log(e);
         if (e.nativeEvent.data === null && valueInside.length > 0){
             setValueInside((e.target.value).substring(0, (e.target.value).length))
         }
