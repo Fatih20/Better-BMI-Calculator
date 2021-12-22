@@ -92,7 +92,7 @@ export default function Result () {
         },
         "Morbidly Obese" : {
             "lower" : 40,
-            "upper" : 100,
+            "upper" : 60,
             "color": "#c6262e"
         },
     };
@@ -115,8 +115,8 @@ export default function Result () {
             data[0]["middle"] = dataOfBodyType[bodyType]["lower"];
             data[0]["upper"] = dataOfBodyType[bodyType]["upper"]-dataOfBodyType[bodyType]["lower"];
         } else if (indexOfCenter === 0){
-            data[0]["bottom"] = dataOfBodyType[bodyType]["lower"];
-            data[0]["middle"] = dataOfBodyType[bodyType]["upper"]-dataOfBodyType[bodyType]["lower"];
+            data[0]["bottom"] = dataOfBodyType[bodyType]["upper"];
+            data[0]["middle"] = 2;
         } else {
             data[0]["bottom"] = dataOfBodyType[bodyType]["lower"];
             data[0]["middle"] = dataOfBodyType[bodyType]["upper"]-dataOfBodyType[bodyType]["lower"];
@@ -131,6 +131,8 @@ export default function Result () {
         let domain = [dataOfBodyType[bodyType]["lower"]-1, dataOfBodyType[bodyType]["upper"]+1];
         if (indexOfCenter === 0){
             domain[0] = domain[0]+1;
+        } else if (indexOfCenter === Object.keys(dataOfBodyType).length-1){
+            domain[1] = domain[1]-1;
         }
 
         return domain;
@@ -154,6 +156,7 @@ export default function Result () {
     function barGenerator (){
         const data = dataProducer()[0];
         const listOfIncludedBodyType = includedBodyTypeProducer("body type");
+        console.log(listOfIncludedBodyType);
         let listOfBars = [];
         console.log(data);
         Object.keys(data).forEach((position, index) => {
