@@ -23,14 +23,11 @@ const BodyTypeContainer = styled.div`
     display: flex;
     justify-content: center;
     gap: 10px;
-
-    & > *:nth-child(2){
-        font-size: 36px;
-    }
 `;
 
 const BodyType = styled.h2`
     color: ${({color}) => color};
+    font-size: ${({currentBodyType}) => currentBodyType ? "36px" : null};
     margin: 0;
 
     /* border: solid 1px white; */
@@ -91,7 +88,7 @@ export default function Result () {
         },
         "Morbidly Obese" : {
             "lower" : 40,
-            "upper" : 1000000000,
+            "upper" : 100,
             "color": "#c6262e"
         },
     }
@@ -106,7 +103,7 @@ export default function Result () {
     function renderBodyType (indexOfIncludedBodyType){
         const includedBodyType = Object.keys(dataOfBodyType)[indexOfIncludedBodyType]
         return (
-            <BodyType id={includedBodyType} color={dataOfBodyType[includedBodyType]["color"]}>{includedBodyType}</BodyType>
+            <BodyType currentBodyType={includedBodyType === bodyType ? true : false} id={includedBodyType} color={dataOfBodyType[includedBodyType]["color"]}>{includedBodyType}</BodyType>
         )
     }
 
@@ -115,11 +112,10 @@ export default function Result () {
         let value = [];
         const[bottom, middle, upper] = indexOfBodyTypeAround(givenBodyType);
         if (middle === Object.keys(dataOfBodyType).length-1){
-            indexOffset -= 1;
             value = [dataOfBodyType[bodyType]["lower"], dataOfBodyType[bodyType]["upper"]];
-        } else if (bottom === 0){
+        } else if (upper === undefined){
             indexOffset += 1;
-            value = [dataOfBodyType[bodyType]["lower"], dataOfBodyType[bodyType]["upper"], dataOfBodyType[bodyType]["upper"]+2]
+            value = [dataOfBodyType[bodyType]["upper"], dataOfBodyType[bodyType]["upper"]+2]
         } else {
             value = [dataOfBodyType[bodyType]["lower"], dataOfBodyType[bodyType]["upper"], dataOfBodyType[bodyType]["upper"]+2]
         }
@@ -127,8 +123,9 @@ export default function Result () {
         const nameOfValue = ["bottom", "middle", "upper"];
         let result = [{"name" : "Fatih"}];
 
-        nameOfValue.forEach((name, index) => {
-            result[0][name] = value[index + indexOffset]
+        value.forEach((name, index) => {
+            console.log(nameOfValue[index+indexOffset])
+            result[0][nameOfValue[index + indexOffset]] = name;
         })
         console.log(result);
 
@@ -138,13 +135,25 @@ export default function Result () {
     function domainProducer (givenBodyType){
         const[bottom, middle, upper] = indexOfBodyTypeAround(givenBodyType);
         let domain = [dataOfBodyType[bodyType]["lower"]-1, dataOfBodyType[bodyType]["upper"]+1]
-        if (middle === Object.keys(dataOfBodyType).length-1){
-            domain.pop()
-        } else if (bottom === 0){
-            domain.shift()
+        if (upper === undefined){
+            domain[0] = domain[0]+1
         }
+        console.log(domain);
 
         return domain;
+    }
+
+    function barGenerator (givenBodyType){
+
+    }
+
+    function tickProducer (givenBodyType){
+        let tick = [dataOfBodyType[bodyType]["lower"], dataOfBodyType[bodyType]["upper"]]
+        if (givenBodyType === "Morbidly Obese"){
+            tick.pop()
+        }
+
+        return tick;
     }
 
 
@@ -161,13 +170,13 @@ export default function Result () {
                 <BodyTypeContainer>
                     {indexOfBodyTypeAround(bodyType).map(renderBodyType)}
                 </BodyTypeContainer>
-                <ChartContainer show={(bodyType === "Morbidly Obese" || bodyType === "") ? false : true}>
+                <ChartContainer show={bodyType === "" ? false : true}>
                     <BarChart data={dataProducer(bodyType)} layout="vertical" width={700} height={100}>
-                        <ReferenceLine xAxisId={0} x={calculation.toFixed(2)} isFront={true} strokeWidth={3}>
+                        <ReferenceLine xAxisId={0} x={calculation.toFixed(2)} isFront={true} strokeWidth={bodyType === "Morbidly Obese" ? 0 : 3}>
                             {/* <Label value="You're here" position="insideTop" fill="white"/> */}
                         </ReferenceLine>
                         <YAxis dataKey="name" type="category" hide={true}/>
-                        <XAxis xAxisId={0} dataKey="value" type="number" domain={domainProducer(bodyType)} ticks={[dataOfBodyType[bodyType]["lower"], dataOfBodyType[bodyType]["upper"]]} />
+                        <XAxis xAxisId={0} dataKey="value" type="number" domain={domainProducer(bodyType)} ticks={tickProducer(bodyType)} />
                         <Bar dataKey="upper" stackId="a" fill={dataOfBodyType[bodyType]["color"]}/>
                         <Bar dataKey="middle" stackId="a" fill={dataOfBodyType[bodyType]["color"]}/>
                         <Bar dataKey="bottom" stackId="a" fill={dataOfBodyType[bodyType]["color"]}/>
