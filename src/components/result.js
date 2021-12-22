@@ -40,31 +40,39 @@ const ChartContainer = styled.div`
 export default function Result () {
     const [calculation, setCalculation] = useCalculationContext();
     const [bodyType, setBodyType] = useState(null);
-    const [unifiedData, setUnifiedData] = useState(null)
+    const [indexOfCenter, setIndexOfCenter] = useState(null);
 
     useEffect(() => {
         // console.log(bodyType);
         // console.log(calculation);
         if (calculation !== null){
-            unifiedDataProducer();
+            determineBodyTypeAndIndex();
         }
     }, [calculation]);
 
-    function determineBodyType (){
-        let newBodyType;
+    // useEffect (() => {
+    //     if (bodyType !== null){
+    //         unifiedDataProducer();
+    //     }
+    // }, [calculation]);
+
+    function determineBodyTypeAndIndex (){
+        let centerBodyType;
         if (calculation < 18.5){
-            newBodyType = "Underweight"
+            centerBodyType = "Underweight"
         } else if (calculation < 25){
-            newBodyType = "Normal"
+            centerBodyType = "Normal"
         } else if (calculation < 30){
-            newBodyType = "Overweight"
+            centerBodyType = "Overweight"
         } else if (calculation < 40){
-            newBodyType = "Obese"
+            centerBodyType = "Obese"
         } else {
-            newBodyType = "Morbidly Obese"
+            centerBodyType = "Morbidly Obese"
         }
 
-        return newBodyType
+        const indexOfCenter = Object.keys(dataOfBodyType).findIndex((element) => element === centerBodyType);
+        setBodyType(centerBodyType);
+        setIndexOfCenter(indexOfCenter);
     }
 
     const dataOfBodyType = {
@@ -95,16 +103,19 @@ export default function Result () {
         },
     };
 
-    function includedBodyTypeProducer (centerBodyType){
+    function includedBodyTypeProducer (dataType){
         const listOfBodyType = Object.keys(dataOfBodyType);
-        const indexOfCenter = listOfBodyType.findIndex((element) => element === centerBodyType);
         const listOfIndex = [indexOfCenter-1, indexOfCenter, indexOfCenter+1].filter(index => index >= 0 && index < listOfBodyType.length);
-        const listOfIncludedBodyType = listOfIndex.map((element) => Object.keys(dataOfBodyType)[element]);
+        const listOfIncludedBodyType = listOfIndex.map((element) => listOfBodyType[element]);
 
-        return [indexOfCenter, listOfIndex, listOfIncludedBodyType];
+        if (dataType === "index"){
+            return listOfIndex; 
+        } else if (dataType === "body type") {
+            return listOfIncludedBodyType;
+        }
     }
 
-    function dataProducer (indexOfCenter){
+    function dataProducer (){
         let data = [{}];
         if (indexOfCenter === Object.keys(dataOfBodyType).length-1){
             data[0]["middle"] = dataOfBodyType[bodyType]["lower"];
@@ -122,14 +133,16 @@ export default function Result () {
         return data;
     }
 
-    function domainProducer (indexOfCenter){
+    function domainProducer (){
         let domain = [dataOfBodyType[bodyType]["lower"]-1, dataOfBodyType[bodyType]["upper"]+1];
         if (indexOfCenter === 0){
             domain[0] = domain[0]+1;
         }
+
+        return domain;
     }
 
-    function tickProducer (indexOfCenter){
+    function tickProducer (){
         let tick = [dataOfBodyType[bodyType]["lower"], dataOfBodyType[bodyType]["upper"]]
         if (indexOfCenter === Object.keys(dataOfBodyType).length-1){
             tick.pop()
@@ -137,22 +150,21 @@ export default function Result () {
         return tick;
     }
 
-    function unifiedDataProducer (){
-        const centerBodyType = determineBodyType();
-        setBodyType(centerBodyType);
+    // function unifiedDataProducer (){
+    //     let unifiedDataCandidate = {};
 
-        let unifiedDataCandidate = {};
+    //     const [indexOfCenter, listOfIndex, listOfIncludedBodyType] = includedBodyTypeProducer(bodyType);
 
-        const [indexOfCenter, listOfIndex, listOfIncludedBodyType] = includedBodyTypeProducer(centerBodyType);
+    //     unifiedDataCandidate["includedIndex"] = listOfIndex;
+    //     unifiedDataCandidate["includedBodyStyle"] = listOfIncludedBodyType;
+    //     unifiedDataCandidate["data"] = dataProducer(indexOfCenter);
+    //     unifiedDataCandidate["domain"] = domainProducer(indexOfCenter);
+    //     unifiedDataCandidate["ticks"] = tickProducer(indexOfCenter);
 
-        unifiedDataCandidate["includedIndex"] = listOfIndex;
-        unifiedDataCandidate["includedBodyStyle"] = listOfIncludedBodyType;
-        unifiedDataCandidate["data"] = dataProducer(indexOfCenter);
-        unifiedDataCandidate["domain"] = domainProducer(indexOfCenter);
-        unifiedDataCandidate["ticks"] = tickProducer(indexOfCenter);
+    //     console.log(unifiedDataCandidate);
 
-        setUnifiedData(unifiedDataCandidate);
-    }
+    //     setUnifiedData(unifiedDataCandidate);
+    // }
 
     function renderBodyType (indexOfIncludedBodyType){
         const includedBodyType = Object.keys(dataOfBodyType)[indexOfIncludedBodyType]
@@ -162,8 +174,8 @@ export default function Result () {
     }
 
     function barGenerator (givenBodyType){
-        const data = unifiedData["data"][0];
-        const listOfIncludedIndex = unifiedData["includedIndex"];
+        const data = dataProducer()[0];
+        const listOfIncludedIndex = includedBodyTypeProducer("index");
         let count = -1;
         Object.keys(data).forEach((element, index) => {
             if (element !== "name"){
@@ -174,7 +186,7 @@ export default function Result () {
     }
 
 
-    if (calculation === null || bodyType === null || unifiedData === null){
+    if (calculation === null || bodyType === null){
         return (
             <>
 
@@ -185,15 +197,15 @@ export default function Result () {
             <Main>
                 <Index color={dataOfBodyType[bodyType]["color"]}>{calculation.toFixed(2)}</Index>
                 <BodyTypeContainer>
-                    {unifiedData["includedIndex"].map(renderBodyType)}
+                    {includedBodyTypeProducer("index").map(renderBodyType)}
                 </BodyTypeContainer>
                 <ChartContainer show={bodyType === "" ? false : true}>
-                    <BarChart data={unifiedData["data"]} layout="vertical" width={700} height={100}>
+                    <BarChart data={dataProducer()} layout="vertical" width={700} height={100}>
                         <ReferenceLine xAxisId={0} x={calculation.toFixed(2)} isFront={true} strokeWidth={bodyType === "Morbidly Obese" ? 0 : 3}>
                             {/* <Label value="You're here" position="insideTop" fill="white"/> */}
                         </ReferenceLine>
                         <YAxis dataKey="name" type="category" hide={true}/>
-                        <XAxis xAxisId={0} dataKey="value" type="number" domain={unifiedData["domain"]} ticks={unifiedData["ticks"]} />
+                        <XAxis xAxisId={0} dataKey="value" type="number" domain={domainProducer()} ticks={tickProducer()} />
                         <Bar dataKey="upper" stackId="a" fill={dataOfBodyType[bodyType]["color"]}/>
                         <Bar dataKey="middle" stackId="a" fill={dataOfBodyType[bodyType]["color"]}/>
                         <Bar dataKey="bottom" stackId="a" fill={dataOfBodyType[bodyType]["color"]}/>
