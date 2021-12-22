@@ -50,12 +50,6 @@ export default function Result () {
         }
     }, [calculation]);
 
-    // useEffect (() => {
-    //     if (bodyType !== null){
-    //         unifiedDataProducer();
-    //     }
-    // }, [calculation]);
-
     function determineBodyTypeAndIndex (){
         let centerBodyType;
         if (calculation < 18.5){
@@ -119,14 +113,14 @@ export default function Result () {
         let data = [{}];
         if (indexOfCenter === Object.keys(dataOfBodyType).length-1){
             data[0]["middle"] = dataOfBodyType[bodyType]["lower"];
-            data[0]["upper"] = dataOfBodyType[bodyType]["upper"];
+            data[0]["upper"] = dataOfBodyType[bodyType]["upper"]-dataOfBodyType[bodyType]["lower"];
         } else if (indexOfCenter === 0){
             data[0]["bottom"] = dataOfBodyType[bodyType]["lower"];
-            data[0]["middle"] = dataOfBodyType[bodyType]["upper"];
+            data[0]["middle"] = dataOfBodyType[bodyType]["upper"]-dataOfBodyType[bodyType]["lower"];
         } else {
             data[0]["bottom"] = dataOfBodyType[bodyType]["lower"];
-            data[0]["middle"] = dataOfBodyType[bodyType]["upper"];
-            data[0]["upper"] = dataOfBodyType[bodyType]["upper"]+2;
+            data[0]["middle"] = dataOfBodyType[bodyType]["upper"]-dataOfBodyType[bodyType]["lower"];
+            data[0]["upper"] = 2;
 
         }
 
@@ -150,22 +144,6 @@ export default function Result () {
         return tick;
     }
 
-    // function unifiedDataProducer (){
-    //     let unifiedDataCandidate = {};
-
-    //     const [indexOfCenter, listOfIndex, listOfIncludedBodyType] = includedBodyTypeProducer(bodyType);
-
-    //     unifiedDataCandidate["includedIndex"] = listOfIndex;
-    //     unifiedDataCandidate["includedBodyStyle"] = listOfIncludedBodyType;
-    //     unifiedDataCandidate["data"] = dataProducer(indexOfCenter);
-    //     unifiedDataCandidate["domain"] = domainProducer(indexOfCenter);
-    //     unifiedDataCandidate["ticks"] = tickProducer(indexOfCenter);
-
-    //     console.log(unifiedDataCandidate);
-
-    //     setUnifiedData(unifiedDataCandidate);
-    // }
-
     function renderBodyType (indexOfIncludedBodyType){
         const includedBodyType = Object.keys(dataOfBodyType)[indexOfIncludedBodyType]
         return (
@@ -173,16 +151,19 @@ export default function Result () {
         )
     }
 
-    function barGenerator (givenBodyType){
+    function barGenerator (){
         const data = dataProducer()[0];
-        const listOfIncludedIndex = includedBodyTypeProducer("index");
-        let count = -1;
-        Object.keys(data).forEach((element, index) => {
-            if (element !== "name"){
-                count += 1
-                return <Bar dataKey={element} stackId="a" fill={dataOfBodyType[Object.keys(dataOfBodyType)[listOfIncludedIndex[count]]]["color"]}/>
-            }
+        const listOfIncludedBodyType = includedBodyTypeProducer("body type");
+        let listOfBars = [];
+        console.log(data);
+        Object.keys(data).forEach((position, index) => {
+            listOfBars.push(
+                <Bar id={`${index}${position}`} stackId="a" dataKey={position} fill={dataOfBodyType[listOfIncludedBodyType[index]]["color"]} />
+            )
         })
+        console.log(listOfBars);
+
+        return listOfBars;
     }
 
 
@@ -206,10 +187,10 @@ export default function Result () {
                         </ReferenceLine>
                         <YAxis dataKey="name" type="category" hide={true}/>
                         <XAxis xAxisId={0} dataKey="value" type="number" domain={domainProducer()} ticks={tickProducer()} />
-                        <Bar dataKey="upper" stackId="a" fill={dataOfBodyType[bodyType]["color"]}/>
-                        <Bar dataKey="middle" stackId="a" fill={dataOfBodyType[bodyType]["color"]}/>
-                        <Bar dataKey="bottom" stackId="a" fill={dataOfBodyType[bodyType]["color"]}/>
-                        {/* {barGenerator} */}
+                        {/* <Bar dataKey="bottom" stackId="a" fill={"yellow"}/>
+                        <Bar dataKey="middle" stackId="a" fill={"white"}/>
+                        <Bar dataKey="upper" stackId="a" fill={"red"}/> */}
+                        {barGenerator()}
                     </BarChart>
                 </ChartContainer>
             </Main>
