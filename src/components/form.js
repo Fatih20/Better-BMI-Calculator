@@ -31,10 +31,12 @@ const MetricChoiceContainer = styled.div`
     display: flex;
     justify-content: center;
     gap: 10px;
+    padding: 10px 0;
 `;
 
 const MetricChoice = styled.p`
     color: ${({chosen}) => chosen ? "white" : `rgba(255, 255, 255, 0.4)`};
+    margin: 0;
 `;
 
 function countInArray(array, checkedValue){
@@ -113,6 +115,10 @@ export default function Form () {
 
     return (
         <Main>
+            <MetricChoiceContainer>
+                <MetricChoice chosen={isMetric} onClick={(isMetric) => setIsMetric(prevIsMetric => prevIsMetric ? prevIsMetric : !prevIsMetric)}>Metric</MetricChoice>
+                <MetricChoice chosen={!isMetric} onClick={(isMetric) => setIsMetric(prevIsMetric => prevIsMetric ? !prevIsMetric : prevIsMetric)}>Imperial</MetricChoice>
+            </MetricChoiceContainer>
             <FormBits>
                 <p>Weight</p>
                 <StyledInput value={weight} onChange={(e) => handleChange(e, weight, setWeight)}/>
@@ -123,10 +129,6 @@ export default function Form () {
                 <StyledInput value={height} onChange={(e) => handleChange(e, height, setHeight)}/>
                 <p>{unit[(isMetric.toString())]["height"]}</p>
             </FormBits>
-            <MetricChoiceContainer>
-                <MetricChoice chosen={isMetric} onClick={(isMetric) => setIsMetric(prevIsMetric => prevIsMetric ? prevIsMetric : !prevIsMetric)}>Metric</MetricChoice>
-                <MetricChoice chosen={!isMetric} onClick={(isMetric) => setIsMetric(prevIsMetric => prevIsMetric ? !prevIsMetric : prevIsMetric)}>Imperial</MetricChoice>
-            </MetricChoiceContainer>
 
             
         </Main>
