@@ -40,14 +40,15 @@ const ChartContainer = styled.div`
 export default function Result () {
     const [calculation, setCalculation] = useCalculationContext();
     const [bodyType, setBodyType] = useState(null);
+    const [unifiedData, setUnifiedData] = useState(null)
 
     useEffect(() => {
         // console.log(bodyType);
         // console.log(calculation);
         if (calculation !== null){
-            determineBodyType();
+            unifiedDataProducer();
         }
-    }, [calculation])
+    }, [calculation]);
 
     function determineBodyType (){
         let newBodyType;
@@ -62,7 +63,8 @@ export default function Result () {
         } else {
             newBodyType = "Morbidly Obese"
         }
-        setBodyType(newBodyType);
+
+        return newBodyType
     }
 
     const dataOfBodyType = {
@@ -91,13 +93,65 @@ export default function Result () {
             "upper" : 100,
             "color": "#c6262e"
         },
-    }
+    };
 
-    function indexOfBodyTypeAround(centerBodyType) {
+    function includedBodyTypeProducer (centerBodyType){
         const listOfBodyType = Object.keys(dataOfBodyType);
         const indexOfCenter = listOfBodyType.findIndex((element) => element === centerBodyType);
         const listOfIndex = [indexOfCenter-1, indexOfCenter, indexOfCenter+1].filter(index => index >= 0 && index < listOfBodyType.length);
-        return listOfIndex
+        const listOfIncludedBodyType = listOfIndex.map((element) => Object.keys(dataOfBodyType)[element]);
+
+        return [indexOfCenter, listOfIndex, listOfIncludedBodyType];
+    }
+
+    function dataProducer (indexOfCenter){
+        let data = [{}];
+        if (indexOfCenter === Object.keys(dataOfBodyType).length-1){
+            data[0]["middle"] = dataOfBodyType[bodyType]["lower"];
+            data[0]["upper"] = dataOfBodyType[bodyType]["upper"];
+        } else if (indexOfCenter === 0){
+            data[0]["bottom"] = dataOfBodyType[bodyType]["lower"];
+            data[0]["middle"] = dataOfBodyType[bodyType]["upper"];
+        } else {
+            data[0]["bottom"] = dataOfBodyType[bodyType]["lower"];
+            data[0]["middle"] = dataOfBodyType[bodyType]["upper"];
+            data[0]["upper"] = dataOfBodyType[bodyType]["upper"]+2;
+
+        }
+
+        return data;
+    }
+
+    function domainProducer (indexOfCenter){
+        let domain = [dataOfBodyType[bodyType]["lower"]-1, dataOfBodyType[bodyType]["upper"]+1];
+        if (indexOfCenter === 0){
+            domain[0] = domain[0]+1;
+        }
+    }
+
+    function tickProducer (indexOfCenter){
+        let tick = [dataOfBodyType[bodyType]["lower"], dataOfBodyType[bodyType]["upper"]]
+        if (indexOfCenter === Object.keys(dataOfBodyType).length-1){
+            tick.pop()
+        }
+        return tick;
+    }
+
+    function unifiedDataProducer (){
+        const centerBodyType = determineBodyType();
+        setBodyType(centerBodyType);
+
+        let unifiedDataCandidate = {};
+
+        const [indexOfCenter, listOfIndex, listOfIncludedBodyType] = includedBodyTypeProducer(centerBodyType);
+
+        unifiedDataCandidate["includedIndex"] = listOfIndex;
+        unifiedDataCandidate["includedBodyStyle"] = listOfIncludedBodyType;
+        unifiedDataCandidate["data"] = dataProducer(indexOfCenter);
+        unifiedDataCandidate["domain"] = domainProducer(indexOfCenter);
+        unifiedDataCandidate["ticks"] = tickProducer(indexOfCenter);
+
+        setUnifiedData(unifiedDataCandidate);
     }
 
     function renderBodyType (indexOfIncludedBodyType){
@@ -107,57 +161,20 @@ export default function Result () {
         )
     }
 
-    function dataProducer (givenBodyType){
-        let indexOffset = 0;
-        let value = [];
-        const[bottom, middle, upper] = indexOfBodyTypeAround(givenBodyType);
-        if (middle === Object.keys(dataOfBodyType).length-1){
-            value = [dataOfBodyType[bodyType]["lower"], dataOfBodyType[bodyType]["upper"]];
-        } else if (upper === undefined){
-            indexOffset += 1;
-            value = [dataOfBodyType[bodyType]["upper"], dataOfBodyType[bodyType]["upper"]+2]
-        } else {
-            value = [dataOfBodyType[bodyType]["lower"], dataOfBodyType[bodyType]["upper"], dataOfBodyType[bodyType]["upper"]+2]
-        }
-
-        const nameOfValue = ["bottom", "middle", "upper"];
-        let result = [{"name" : "Fatih"}];
-
-        value.forEach((name, index) => {
-            console.log(nameOfValue[index+indexOffset])
-            result[0][nameOfValue[index + indexOffset]] = name;
-        })
-        console.log(result);
-
-        return result;
-    };
-
-    function domainProducer (givenBodyType){
-        const[bottom, middle, upper] = indexOfBodyTypeAround(givenBodyType);
-        let domain = [dataOfBodyType[bodyType]["lower"]-1, dataOfBodyType[bodyType]["upper"]+1]
-        if (upper === undefined){
-            domain[0] = domain[0]+1
-        }
-        console.log(domain);
-
-        return domain;
-    }
-
     function barGenerator (givenBodyType){
-
+        const data = unifiedData["data"][0];
+        const listOfIncludedIndex = unifiedData["includedIndex"];
+        let count = -1;
+        Object.keys(data).forEach((element, index) => {
+            if (element !== "name"){
+                count += 1
+                return <Bar dataKey={element} stackId="a" fill={dataOfBodyType[Object.keys(dataOfBodyType)[listOfIncludedIndex[count]]]["color"]}/>
+            }
+        })
     }
 
-    function tickProducer (givenBodyType){
-        let tick = [dataOfBodyType[bodyType]["lower"], dataOfBodyType[bodyType]["upper"]]
-        if (givenBodyType === "Morbidly Obese"){
-            tick.pop()
-        }
 
-        return tick;
-    }
-
-
-    if (calculation === null || bodyType === null){
+    if (calculation === null || bodyType === null || unifiedData === null){
         return (
             <>
 
@@ -168,18 +185,19 @@ export default function Result () {
             <Main>
                 <Index color={dataOfBodyType[bodyType]["color"]}>{calculation.toFixed(2)}</Index>
                 <BodyTypeContainer>
-                    {indexOfBodyTypeAround(bodyType).map(renderBodyType)}
+                    {unifiedData["includedIndex"].map(renderBodyType)}
                 </BodyTypeContainer>
                 <ChartContainer show={bodyType === "" ? false : true}>
-                    <BarChart data={dataProducer(bodyType)} layout="vertical" width={700} height={100}>
+                    <BarChart data={unifiedData["data"]} layout="vertical" width={700} height={100}>
                         <ReferenceLine xAxisId={0} x={calculation.toFixed(2)} isFront={true} strokeWidth={bodyType === "Morbidly Obese" ? 0 : 3}>
                             {/* <Label value="You're here" position="insideTop" fill="white"/> */}
                         </ReferenceLine>
                         <YAxis dataKey="name" type="category" hide={true}/>
-                        <XAxis xAxisId={0} dataKey="value" type="number" domain={domainProducer(bodyType)} ticks={tickProducer(bodyType)} />
+                        <XAxis xAxisId={0} dataKey="value" type="number" domain={unifiedData["domain"]} ticks={unifiedData["ticks"]} />
                         <Bar dataKey="upper" stackId="a" fill={dataOfBodyType[bodyType]["color"]}/>
                         <Bar dataKey="middle" stackId="a" fill={dataOfBodyType[bodyType]["color"]}/>
                         <Bar dataKey="bottom" stackId="a" fill={dataOfBodyType[bodyType]["color"]}/>
+                        {/* {barGenerator} */}
                     </BarChart>
                 </ChartContainer>
             </Main>
