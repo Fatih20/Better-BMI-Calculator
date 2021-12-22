@@ -8,11 +8,14 @@ const Main = styled.div`
     align-items: center;
     display: flex;
     flex-direction: column;
+    gap: 20px;
+    padding: 30px 0;
 `;
 
 const Index = styled.h2`
     color : ${({color}) => color};
     font-size: 72px;
+    margin: 0;
 `;
 
 const BodyTypeContainer = styled.div`
@@ -28,6 +31,9 @@ const BodyTypeContainer = styled.div`
 
 const BodyType = styled.h2`
     color: ${({color}) => color};
+    margin: 0;
+
+    /* border: solid 1px white; */
 `;
 
 const ChartContainer = styled.div`
@@ -90,31 +96,56 @@ export default function Result () {
         },
     }
 
-    function bodyTypeAround(centerBodyType) {
+    function indexOfBodyTypeAround(centerBodyType) {
         const listOfBodyType = Object.keys(dataOfBodyType);
         const indexOfCenter = listOfBodyType.findIndex((element) => element === centerBodyType);
         const listOfIndex = [indexOfCenter-1, indexOfCenter, indexOfCenter+1].filter(index => index >= 0 && index < listOfBodyType.length);
-        return listOfIndex.map((index) => listOfBodyType[index])
+        return listOfIndex
     }
 
-    function renderBodyType (includedBodyType){
+    function renderBodyType (indexOfIncludedBodyType){
+        const includedBodyType = Object.keys(dataOfBodyType)[indexOfIncludedBodyType]
         return (
             <BodyType id={includedBodyType} color={dataOfBodyType[includedBodyType]["color"]}>{includedBodyType}</BodyType>
         )
     }
 
     function dataProducer (givenBodyType){
-        const value = [dataOfBodyType[bodyType]["lower"], dataOfBodyType[bodyType]["upper"], dataOfBodyType[bodyType]["upper"]+2];
+        let indexOffset = 0;
+        let value = [];
+        const[bottom, middle, upper] = indexOfBodyTypeAround(givenBodyType);
+        if (middle === Object.keys(dataOfBodyType).length-1){
+            indexOffset -= 1;
+            value = [dataOfBodyType[bodyType]["lower"], dataOfBodyType[bodyType]["upper"]];
+        } else if (bottom === 0){
+            indexOffset += 1;
+            value = [dataOfBodyType[bodyType]["lower"], dataOfBodyType[bodyType]["upper"], dataOfBodyType[bodyType]["upper"]+2]
+        } else {
+            value = [dataOfBodyType[bodyType]["lower"], dataOfBodyType[bodyType]["upper"], dataOfBodyType[bodyType]["upper"]+2]
+        }
+
         const nameOfValue = ["bottom", "middle", "upper"];
-        let result = [{"name" : "Fatih"}]
+        let result = [{"name" : "Fatih"}];
 
         nameOfValue.forEach((name, index) => {
-            result[0][name] = value[index]
+            result[0][name] = value[index + indexOffset]
         })
         console.log(result);
 
         return result;
     };
+
+    function domainProducer (givenBodyType){
+        const[bottom, middle, upper] = indexOfBodyTypeAround(givenBodyType);
+        let domain = [dataOfBodyType[bodyType]["lower"]-1, dataOfBodyType[bodyType]["upper"]+1]
+        if (middle === Object.keys(dataOfBodyType).length-1){
+            domain.pop()
+        } else if (bottom === 0){
+            domain.shift()
+        }
+
+        return domain;
+    }
 
 
     if (calculation === null || bodyType === null){
@@ -128,7 +159,7 @@ export default function Result () {
             <Main>
                 <Index color={dataOfBodyType[bodyType]["color"]}>{calculation.toFixed(2)}</Index>
                 <BodyTypeContainer>
-                    {bodyTypeAround(bodyType).map(renderBodyType)}
+                    {indexOfBodyTypeAround(bodyType).map(renderBodyType)}
                 </BodyTypeContainer>
                 <ChartContainer show={(bodyType === "Morbidly Obese" || bodyType === "") ? false : true}>
                     <BarChart data={dataProducer(bodyType)} layout="vertical" width={700} height={100}>
@@ -136,7 +167,7 @@ export default function Result () {
                             {/* <Label value="You're here" position="insideTop" fill="white"/> */}
                         </ReferenceLine>
                         <YAxis dataKey="name" type="category" hide={true}/>
-                        <XAxis xAxisId={0} dataKey="value" type="number" domain={[dataOfBodyType[bodyType]["lower"]-1, dataOfBodyType[bodyType]["upper"]+1]} ticks={[dataOfBodyType[bodyType]["lower"], dataOfBodyType[bodyType]["upper"]]} />
+                        <XAxis xAxisId={0} dataKey="value" type="number" domain={domainProducer(bodyType)} ticks={[dataOfBodyType[bodyType]["lower"], dataOfBodyType[bodyType]["upper"]]} />
                         <Bar dataKey="upper" stackId="a" fill={dataOfBodyType[bodyType]["color"]}/>
                         <Bar dataKey="middle" stackId="a" fill={dataOfBodyType[bodyType]["color"]}/>
                         <Bar dataKey="bottom" stackId="a" fill={dataOfBodyType[bodyType]["color"]}/>
