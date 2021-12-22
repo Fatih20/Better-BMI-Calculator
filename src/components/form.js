@@ -1,4 +1,5 @@
-import React, {useState, useEffect} from "react";
+import React, {useState, useEffect, useRef} from "react";
+import { LabelList } from "recharts";
 import styled from "styled-components";
 
 import { useCalculationContext } from "./body";
@@ -21,10 +22,9 @@ const FormBits = styled.div`
     align-items: center;
     display: flex;
     gap: 10px;
-    justify-content: start;
+    justify-content: ${({isFeet}) => isFeet !== undefined || isFeet ? "end" : "start"};
     width: 250px;
 
-    /* border: solid 1px white; */
 `;
 
 const MetricChoiceContainer = styled.div`
@@ -39,37 +39,96 @@ const MetricChoice = styled.p`
     margin: 0;
 `;
 
+const FormContainer = styled.div`
+    display: ${({show}) => show ? "block" : "none"}
+`;
+
 function countInArray(array, checkedValue){
     return array.reduce((count, element) => count + (element === checkedValue ? 1 : 0), 0)
 }
 
+// function CorrectedInput ({calculateAndSetExternalValue, resetValue}){
+//     const[value, setValue] = useState("");
+
+//     useEffect(() => {
+//         setValue("");
+//     }, [resetValue]);
+
+//     useEffect(() => {
+//         calculateAndSetExternalValue(value);
+//     }, [value]);
+
+//     const listOfNumber = Array.from({length: 10}, (_,i) => i.toString());
+//     const setOfValidCharacter = new Set(listOfNumber.concat(["."]));
+
+//     if (resetValue){
+//         setValue("");
+//     }
+
+//     function handleChange(e){
+//         // console.log(e);
+//         let newValue = e.target.value;
+//         let inputValid = true;
+//         if (e.nativeEvent.data === null && value.length > 0){
+//             newValue = newValue.substring(0, newValue.length);
+//         }
+
+//         if (value.length > 0 && countInArray((e.target.value).split(""), ".") > 1){
+//             console.log("More")
+//             inputValid = false;
+//         }
+
+//         if (e.nativeEvent.data !== null && !setOfValidCharacter.has(e.nativeEvent.data)){
+//             inputValid = false;
+//         }
+
+//         if (inputValid){
+//             console.log("Changing value");
+//             setValue(newValue);
+//         }
+//     }
+//     return (
+//         <StyledInput value={value} onChange={(e) => handleChange(e)}/>
+//     )
+// }
+
 export default function Form () {
     const[height, setHeight] = useState("");
     const[weight, setWeight] = useState("");
+    const[inch, setInch] = useState("");
+    const[feet, setFeet] = useState("");
+    const[resetValue, setResetValue] = useState(true);
     const[isMetric, setIsMetric] = useState(true);
     const[calculation, setCalculation] = useCalculationContext();
 
-    const listOfNumber = Array.from({length: 10}, (_,i) => i.toString());
-    const setOfValidCharacter = new Set(listOfNumber.concat(["."]));
+    useEffect(() => {
+        if (!isMetric){
+            calculateImperialHeight();
+        }
+    }, [inch, feet])
 
     useEffect(() => {
+        console.log(height);
+        console.log(weight);
         if (height !== "" && weight !== ""){
             calculateBMI();   
         } else {
+            console.log("Triggered it")
             setCalculation(null)
         }
     }, [height, weight])
 
     useEffect(() => {
-        setHeight("");
         setWeight("");
+        setHeight("");
+        setInch("");
+        setFeet("");
         setCalculation(null);
     }, [isMetric]);
 
     function calculateBMI(){
         const floatHeight = parseFloat(height);
         const floatWeight = parseFloat(weight);
-        // console.log(floatWeight);
         if (floatHeight.toString() !== "NaN" && floatWeight.toString() !== "NaN"){
             let calculationResult = floatWeight/(floatHeight**2);
             if (isMetric){
@@ -84,24 +143,46 @@ export default function Form () {
         }
     }
 
-    function handleChange(e, valueInside, setValueInside){
-        console.log(e);
-        if (e.nativeEvent.data === null && valueInside.length > 0){
-            setValueInside((e.target.value).substring(0, (e.target.value).length))
+    function calculateImperialHeight (){
+        if (inch === "" && feet === ""){
+            setHeight("")
+        } else {
+            let convertedInch = 0;
+            if (inch !== ""){
+                convertedInch = parseFloat(inch);
+            }
+            let convertedFeet = 0;
+            if (feet !== ""){
+                convertedFeet = parseFloat(feet);
+            }
+            const newHeight = convertedInch+12*convertedFeet;
+            setHeight(newHeight)
+        }
+    }
+
+    const listOfNumber = Array.from({length: 10}, (_,i) => i.toString());
+    const setOfValidCharacter = new Set(listOfNumber.concat(["."]));
+
+    function handleChange(e, setExternalValue){
+        // console.log(e);
+        let newValue = e.target.value;
+        let inputValid = true;
+        if (e.nativeEvent.data === null && newValue.length > 0){
+            newValue = newValue.substring(0, newValue.length);
         }
 
-        let inputValid = true;
-
-        if (valueInside.length > 0 && countInArray((e.target.value).split(""), ".") > 1){
+        if (newValue.length > 0 && countInArray((e.target.value).split(""), ".") > 1){
+            console.log("More")
             inputValid = false;
         }
 
-        if (!setOfValidCharacter.has(e.nativeEvent.data)){
+        if (e.nativeEvent.data !== null && !setOfValidCharacter.has(e.nativeEvent.data)){
             inputValid = false;
         }
 
         if (inputValid){
-            setValueInside(e.target.value)
+            // console.log("Changing value");
+            setExternalValue(newValue);
         }
     }
 
@@ -115,24 +196,43 @@ export default function Form () {
             "height" : "in",
         }
     }
+    //f
     
 
     return (
         <Main>
             <MetricChoiceContainer>
-                <MetricChoice chosen={isMetric} onClick={(isMetric) => setIsMetric(prevIsMetric => prevIsMetric ? prevIsMetric : !prevIsMetric)}>Metric</MetricChoice>
-                <MetricChoice chosen={!isMetric} onClick={(isMetric) => setIsMetric(prevIsMetric => prevIsMetric ? !prevIsMetric : prevIsMetric)}>Imperial</MetricChoice>
+                <MetricChoice chosen={isMetric} onClick={() => setIsMetric(prevIsMetric => prevIsMetric ? prevIsMetric : !prevIsMetric)}>Metric</MetricChoice>
+                <MetricChoice chosen={!isMetric} onClick={() => setIsMetric(prevIsMetric => prevIsMetric ? !prevIsMetric : prevIsMetric)}>Imperial</MetricChoice>
             </MetricChoiceContainer>
-            <FormBits>
-                <p>Weight</p>
-                <StyledInput value={weight} onChange={(e) => handleChange(e, weight, setWeight)}/>
-                <p>{unit[(isMetric.toString())]["weight"]}</p>
-            </FormBits>
-            <FormBits>
-                <p>Height</p>
-                <StyledInput value={height} onChange={(e) => handleChange(e, height, setHeight)}/>
-                <p>{unit[(isMetric.toString())]["height"]}</p>
-            </FormBits>
+            <FormContainer show={isMetric}>
+                <FormBits>
+                    <p>Weight</p>
+                    <StyledInput value={weight} onChange={(e) => handleChange(e, setWeight)}/>
+                    <p>{unit[(isMetric.toString())]["weight"]}</p>
+                </FormBits>
+                <FormBits>
+                    <p>Height</p>
+                    <StyledInput value={height} onChange={(e) => handleChange(e, setHeight)}/>
+                    <p>{unit[(isMetric.toString())]["height"]}</p>
+                </FormBits>
+            </FormContainer>
+            <FormContainer show={!isMetric}>
+                <FormBits>
+                    <p>Weight</p>
+                    <StyledInput value={weight} onChange={(e) => handleChange(e, setWeight)}/>
+                    <p>{unit[(isMetric.toString())]["weight"]}</p>
+                </FormBits>
+                <FormBits>
+                    <p>Height</p>
+                    <StyledInput value={inch} onChange={(e) => handleChange(e, setInch)}/>
+                    <p>{unit[(isMetric.toString())]["height"]}</p>
+                </FormBits>
+                <FormBits isFeet={true}>
+                <StyledInput value={feet} onChange={(e) => handleChange(e, setFeet)}/>
+                    <p>feet</p>
+                </FormBits>
+            </FormContainer>
 
             
         </Main>

@@ -167,6 +167,8 @@ export default function Result () {
 
 
     if (calculation === null || bodyType === null){
+        // console.log(calculation);
+        // console.log(bodyType);
         return (
             <>
 
