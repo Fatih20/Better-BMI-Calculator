@@ -53,7 +53,11 @@ export default function Form () {
     const setOfValidCharacter = new Set(listOfNumber.concat(["."]));
 
     useEffect(() => {
-        calculateBMI();
+        if (height !== "" && weight !== ""){
+            calculateBMI();   
+        } else {
+            setCalculation(null)
+        }
     }, [height, weight])
 
     useEffect(() => {

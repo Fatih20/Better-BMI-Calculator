@@ -47,8 +47,7 @@ export default function Result () {
         // console.log(calculation);
         if (calculation !== null){
             determineBodyTypeAndIndex();
-        }
-    }, [calculation]);
+    }}, [calculation]);
 
     function determineBodyTypeAndIndex (){
         let centerBodyType;
