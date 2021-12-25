@@ -16,16 +16,34 @@ const Main = styled.div`
     color : white;
     display: flex;
     flex-direction: column;
-    padding: 10px 20px;
+    gap: 10px;
+    padding: 10px 20px 30px 20px;
+`;
+
+const FormContainer = styled.div`
+    display: ${({show}) => show ? "flex" : "none"};
+    flex-direction: column;
+    gap: 20px;
 `;
 
 const FormBits = styled.div`
     align-items: center;
     display: flex;
+    flex-direction: column;
     font-size: 18px;
     gap: 10px;
-    justify-content: ${({isFeet}) => isFeet !== undefined || isFeet ? "end" : "start"};
+    & * {
+        margin: 0;
+    }
+    /* border: solid 1px white; */
+    /* justify-content: ${({isFeet}) => isFeet !== undefined || isFeet ? "end" : "start"}; */
+`;
 
+const FormInput = styled.div`
+    align-items: center;
+    align-self: start;
+    display: flex;
+    gap: 5px;
 `;
 
 const StyledInput = styled.input`
@@ -35,7 +53,7 @@ const StyledInput = styled.input`
     font-family: 'Inter', sans-serif;
     height: 100%;
     padding: 5px;
-    width: 80px;
+    width: 90px;
 
     &:focus {
         outline-color: black;
@@ -54,10 +72,6 @@ const MetricChoice = styled(VanillaButton)`
     background-color: rgba(0, 0, 0, 0);
     color: ${({chosen}) => chosen ? "white" : `rgba(255, 255, 255, 0.4)`};
     font-size: 14px;
-`;
-
-const FormContainer = styled.div`
-    display: ${({show}) => show ? "block" : "none"}
 `;
 
 function countInArray(array, checkedValue){
@@ -157,29 +171,39 @@ export default function Form () {
             <FormContainer show={isMetric}>
                 <FormBits>
                     <p>Weight</p>
-                    <StyledInput value={weight} onChange={(e) => handleChange(e, setWeight)}/>
-                    <p>{unit[(isMetric.toString())]["weight"]}</p>
+                    <FormInput>
+                        <StyledInput value={weight} onChange={(e) => handleChange(e, setWeight)}/>
+                        <p>{unit[(isMetric.toString())]["weight"]}</p>
+                    </FormInput>
                 </FormBits>
                 <FormBits>
                     <p>Height</p>
-                    <StyledInput value={height} onChange={(e) => handleChange(e, setHeight)}/>
-                    <p>{unit[(isMetric.toString())]["height"]}</p>
+                    <FormInput>
+                        <StyledInput value={weight} onChange={(e) => handleChange(e, setHeight)}/>
+                        <p>{unit[(isMetric.toString())]["height"]}</p>
+                    </FormInput>
                 </FormBits>
             </FormContainer>
             <FormContainer show={!isMetric}>
                 <FormBits>
                     <p>Weight</p>
-                    <StyledInput value={weight} onChange={(e) => handleChange(e, setWeight)}/>
-                    <p>{unit[(isMetric.toString())]["weight"]}</p>
+                    <FormInput>
+                        <StyledInput value={weight} onChange={(e) => handleChange(e, setWeight)}/>
+                        <p>{unit[(isMetric.toString())]["weight"]}</p>
+                    </FormInput>
                 </FormBits>
                 <FormBits>
                     <p>Height</p>
-                    <StyledInput value={inch} onChange={(e) => handleChange(e, (value) => setImperialHeight(value, true))}/>
-                    <p>{unit[(isMetric.toString())]["height"]}</p>
+                    <FormBits isFeet={true}>
+                    <FormInput>
+                        <StyledInput value={feet} onChange={(e) => handleChange(e, (value) => setImperialHeight(value, false))}/>
+                        <p>feet</p>
+                    </FormInput>
                 </FormBits>
-                <FormBits isFeet={true}>
-                <StyledInput value={feet} onChange={(e) => handleChange(e, (value) => setImperialHeight(value, false))}/>
-                    <p>feet</p>
+                    <FormInput>
+                        <StyledInput value={inch} onChange={(e) => handleChange(e, (value) => setImperialHeight(value, true))}/>
+                        <p>{unit[(isMetric.toString())]["height"]}</p>
+                    </FormInput>
                 </FormBits>
             </FormContainer>
 
