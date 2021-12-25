@@ -1,6 +1,7 @@
 import React, {useState, useEffect, useRef} from "react";
 import { LabelList } from "recharts";
 import styled from "styled-components";
+import useDebounce from "../customHooks/useDebounce";
 import useEffectUpdate from "../customHooks/useEffectUpdate";
 import useImperial from "../customHooks/useImperial";
 
@@ -57,23 +58,14 @@ export default function Form () {
     const[isMetric, setIsMetric] = useState(true);
     const[calculation, setCalculation] = useCalculationContext();
 
+    useDebounce(calculateBMI, 500, [height, weight])
+
     useEffect(() => {
         if (!isMetric){
-            console.log(imperialHeight);
+            // console.log(imperialHeight);
             setHeight(imperialHeight);
         }
     }, [imperialHeight])
-
-    useEffectUpdate(() => {
-        console.log(height);
-        console.log(weight);
-        if (height !== "" && weight !== ""){
-            calculateBMI();   
-        } else {
-            console.log("Triggered it")
-            setCalculation(null)
-        }
-    }, [height, weight])
 
     useEffectUpdate(() => {
         setWeight("");
@@ -83,19 +75,24 @@ export default function Form () {
     }, [isMetric]);
 
     function calculateBMI(){
-        const floatHeight = parseFloat(height);
-        const floatWeight = parseFloat(weight);
-        if (floatHeight.toString() !== "NaN" && floatWeight.toString() !== "NaN"){
-            let calculationResult = floatWeight/(floatHeight**2);
-            if (isMetric){
-                calculationResult = calculationResult*10000;
-            } else {
-                calculationResult = calculationResult*703;
+        if (height !== "" && weight !== ""){
+            const floatHeight = parseFloat(height);
+            const floatWeight = parseFloat(weight);
+            if (floatHeight.toString() !== "NaN" && floatWeight.toString() !== "NaN"){
+                let calculationResult = floatWeight/(floatHeight**2);
+                if (isMetric){
+                    calculationResult = calculationResult*10000;
+                } else {
+                    calculationResult = calculationResult*703;
+                }
+                if (calculationResult !== NaN){
+                    console.log(calculationResult);
+                    setCalculation(calculationResult);
+                }   
             }
-            if (calculationResult !== NaN){
-                console.log(calculationResult);
-                setCalculation(calculationResult);
-            }   
+        } else {
+            console.log("Triggered it");
+            setCalculation(null);
         }
     }
 
