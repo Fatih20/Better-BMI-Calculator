@@ -2,7 +2,7 @@ import React, {useState, useEffect, useRef} from "react";
 import styled from "styled-components";
 import { BarChart, Bar, XAxis, ResponsiveContainer, ReferenceLine, YAxis, Label, LabelList } from "recharts";
 
-import { useCalculationContext } from "./body";
+import Body, { useCalculationContext } from "./body";
 
 const Main = styled.div`
     align-items: center;
@@ -27,12 +27,23 @@ const BodyTypeContainer = styled.div`
     /* border: solid 1px white; */
 `;
 
+const MainResultContainer = styled.div`
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+
+`;
+
 const BodyType = styled.h2`
     color: ${({color}) => color};
     font-size: ${({currentBodyType}) => currentBodyType ? "36px" : null};
     margin: 0;
 
     /* border: solid 1px white; */
+`;
+
+const BodyTypeResult = styled(BodyType)`
+    font-size: 36px;
 `;
 
 const Spacer = styled.div`
@@ -178,8 +189,18 @@ export default function Result () {
     function renderBodyType (indexOfIncludedBodyType){
         const includedBodyType = Object.keys(dataOfBodyType)[indexOfIncludedBodyType]
         console.log(includedBodyType);
+        let align = null;
+        if (indexOfCenter === 0){
+            if (indexOfIncludedBodyType === 1){
+                align = "end";
+            }
+        } else if (indexOfCenter === Object.keys(dataOfBodyType).length-1){
+            if (indexOfIncludedBodyType === 3){
+                align = "start";
+            }
+        }
         return (
-            <BodyType currentBodyType={includedBodyType === bodyType ? true : false} id={includedBodyType} color={dataOfBodyType[includedBodyType]["color"]}>{includedBodyType}</BodyType>
+            <BodyType align={align} currentBodyType={includedBodyType === bodyType ? true : false} id={includedBodyType} color={dataOfBodyType[includedBodyType]["color"]}>{includedBodyType}</BodyType>
         )
     };
 
@@ -187,15 +208,24 @@ export default function Result () {
         let includedBodyTypeElement = [];
         console.log(includedBodyTypeProducer("index"));
         includedBodyTypeProducer("index").forEach((element, index) => {
-            includedBodyTypeElement.push(renderBodyType(element));
+            if (element !== indexOfCenter){
+                includedBodyTypeElement.push(renderBodyType(element));
+            }
         })
 
-        includedBodyTypeElement.forEach((element, index) => {
+        if (indexOfCenter !== 0 && indexOfCenter !== Object.keys(dataOfBodyType).length-1){
+            includedBodyTypeElement.forEach((element, index) => {
             if ((index+1) % 2 !== 0 ){
                 includedBodyTypeElement.splice(index+1, 0, <Spacer />)
             }
+            })
+        } else {
+            if (indexOfCenter === 0){
+                includedBodyTypeElement.splice(0, 0, <Spacer />)
+            } else if (indexOfCenter === Object.keys(dataOfBodyType).length-1){
+                includedBodyTypeElement.splice(1, 0, <Spacer />)
+            }
         }
-        )
 
         return includedBodyTypeElement;
     }
@@ -226,7 +256,10 @@ export default function Result () {
     } else {
         return (
             <Main>
-                <Index color={dataOfBodyType[bodyType]["color"]}>{calculation.toFixed(2)}</Index>
+                <MainResultContainer>
+                    <Index color={dataOfBodyType[bodyType]["color"]}>{calculation.toFixed(2)}</Index>
+                    <BodyTypeResult color={dataOfBodyType[bodyType]["color"]}>{bodyType}</BodyTypeResult>
+                </MainResultContainer>
                 <BodyTypeContainer>
                     {renderBodyTypeBox()}
                 </BodyTypeContainer>
