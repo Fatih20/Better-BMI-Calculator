@@ -32,6 +32,7 @@ const StyledInput = styled.input`
     border: solid 1px black;
     border-radius: 3px;
     font-size: 18px;
+    font-family: 'Inter', sans-serif;
     height: 100%;
     padding: 5px;
     width: 80px;
