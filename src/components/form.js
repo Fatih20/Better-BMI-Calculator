@@ -170,14 +170,14 @@ export default function Form () {
                 <FormBits>
                     <p>Weight</p>
                     <FormInput>
-                        <StyledInput value={weight} onChange={(e) => handleChange(e, setWeight)}/>
+                        <StyledInput type="number" value={weight} onChange={(e) => handleChange(e, setWeight)}/>
                         <p>{unit[(isMetric.toString())]["weight"]}</p>
                     </FormInput>
                 </FormBits>
                 <FormBits>
                     <p>Height</p>
                     <FormInput>
-                        <StyledInput value={height} onChange={(e) => handleChange(e, setHeight)}/>
+                        <StyledInput type="number" value={height} onChange={(e) => handleChange(e, setHeight)}/>
                         <p>{unit[(isMetric.toString())]["height"]}</p>
                     </FormInput>
                 </FormBits>
@@ -186,7 +186,7 @@ export default function Form () {
                 <FormBits>
                     <p>Weight</p>
                     <FormInput>
-                        <StyledInput value={weight} onChange={(e) => handleChange(e, setWeight)}/>
+                        <StyledInput type="number" value={weight} onChange={(e) => handleChange(e, setWeight)}/>
                         <p>{unit[(isMetric.toString())]["weight"]}</p>
                     </FormInput>
                 </FormBits>
@@ -194,12 +194,12 @@ export default function Form () {
                     <p>Height</p>
                     <FormBits isFeet={true}>
                     <FormInput>
-                        <StyledInput value={feet} onChange={(e) => handleChange(e, (value) => setImperialHeight(value, false))}/>
+                        <StyledInput type="number" value={feet} onChange={(e) => handleChange(e, (value) => setImperialHeight(value, false))}/>
                         <p>feet</p>
                     </FormInput>
                 </FormBits>
                     <FormInput>
-                        <StyledInput value={inch} onChange={(e) => handleChange(e, (value) => setImperialHeight(value, true))}/>
+                        <StyledInput type="number" value={inch} onChange={(e) => handleChange(e, (value) => setImperialHeight(value, true))}/>
                         <p>{unit[(isMetric.toString())]["height"]}</p>
                     </FormInput>
                 </FormBits>
