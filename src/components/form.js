@@ -49,56 +49,9 @@ function countInArray(array, checkedValue){
     return array.reduce((count, element) => count + (element === checkedValue ? 1 : 0), 0)
 }
 
-// function CorrectedInput ({calculateAndSetExternalValue, resetValue}){
-//     const[value, setValue] = useState("");
-
-//     useEffect(() => {
-//         setValue("");
-//     }, [resetValue]);
-
-//     useEffect(() => {
-//         calculateAndSetExternalValue(value);
-//     }, [value]);
-
-//     const listOfNumber = Array.from({length: 10}, (_,i) => i.toString());
-//     const setOfValidCharacter = new Set(listOfNumber.concat(["."]));
-
-//     if (resetValue){
-//         setValue("");
-//     }
-
-//     function handleChange(e){
-//         // console.log(e);
-//         let newValue = e.target.value;
-//         let inputValid = true;
-//         if (e.nativeEvent.data === null && value.length > 0){
-//             newValue = newValue.substring(0, newValue.length);
-//         }
-
-//         if (value.length > 0 && countInArray((e.target.value).split(""), ".") > 1){
-//             console.log("More")
-//             inputValid = false;
-//         }
-
-//         if (e.nativeEvent.data !== null && !setOfValidCharacter.has(e.nativeEvent.data)){
-//             inputValid = false;
-//         }
-
-//         if (inputValid){
-//             console.log("Changing value");
-//             setValue(newValue);
-//         }
-//     }
-//     return (
-//         <StyledInput value={value} onChange={(e) => handleChange(e)}/>
-//     )
-// }
-
 export default function Form () {
     const[height, setHeight] = useState("");
     const[weight, setWeight] = useState("");
-    // const[inch, setInch] = useState("");
-    // const[feet, setFeet] = useState("");
     const [imperialHeight, setImperialHeight, resetImperialHeight, inch, feet] = useImperial();
     const[resetValue, setResetValue] = useState(true);
     const[isMetric, setIsMetric] = useState(true);
@@ -182,7 +135,6 @@ export default function Form () {
             "height" : "in",
         }
     }
-    //f
     
 
     return (
