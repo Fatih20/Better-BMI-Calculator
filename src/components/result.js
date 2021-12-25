@@ -19,10 +19,12 @@ const Index = styled.h2`
 `;
 
 const BodyTypeContainer = styled.div`
-    align-items: end;
+    align-items: center;
     display: flex;
     justify-content: center;
     gap: 10px;
+    width: 100%;
+    /* border: solid 1px white; */
 `;
 
 const BodyType = styled.h2`
@@ -31,6 +33,10 @@ const BodyType = styled.h2`
     margin: 0;
 
     /* border: solid 1px white; */
+`;
+
+const Spacer = styled.div`
+    flex-grow: 1;
 `;
 
 const ChartContainer = styled.div`
@@ -171,10 +177,28 @@ export default function Result () {
 
     function renderBodyType (indexOfIncludedBodyType){
         const includedBodyType = Object.keys(dataOfBodyType)[indexOfIncludedBodyType]
+        console.log(includedBodyType);
         return (
             <BodyType currentBodyType={includedBodyType === bodyType ? true : false} id={includedBodyType} color={dataOfBodyType[includedBodyType]["color"]}>{includedBodyType}</BodyType>
         )
     };
+
+    function renderBodyTypeBox (){
+        let includedBodyTypeElement = [];
+        console.log(includedBodyTypeProducer("index"));
+        includedBodyTypeProducer("index").forEach((element, index) => {
+            includedBodyTypeElement.push(renderBodyType(element));
+        })
+
+        includedBodyTypeElement.forEach((element, index) => {
+            if ((index+1) % 2 !== 0 ){
+                includedBodyTypeElement.splice(index+1, 0, <Spacer />)
+            }
+        }
+        )
+
+        return includedBodyTypeElement;
+    }
 
     function barGenerator (){
         const data = dataProducer()[0];
@@ -204,7 +228,7 @@ export default function Result () {
             <Main>
                 <Index color={dataOfBodyType[bodyType]["color"]}>{calculation.toFixed(2)}</Index>
                 <BodyTypeContainer>
-                    {includedBodyTypeProducer("index").map(renderBodyType)}
+                    {renderBodyTypeBox()}
                 </BodyTypeContainer>
                 <ChartContainer show={bodyType === "" ? false : true}>
                     <BarChart data={dataProducer()} layout="vertical" width={700} height={100}>
