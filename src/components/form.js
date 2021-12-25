@@ -1,6 +1,8 @@
 import React, {useState, useEffect, useRef} from "react";
 import { LabelList } from "recharts";
 import styled from "styled-components";
+import useEffectUpdate from "../customHooks/useEffectUpdate";
+import useImperial from "../customHooks/useImperial";
 
 import { useCalculationContext } from "./body";
 
@@ -95,19 +97,21 @@ function countInArray(array, checkedValue){
 export default function Form () {
     const[height, setHeight] = useState("");
     const[weight, setWeight] = useState("");
-    const[inch, setInch] = useState("");
-    const[feet, setFeet] = useState("");
+    // const[inch, setInch] = useState("");
+    // const[feet, setFeet] = useState("");
+    const [imperialHeight, setImperialHeight, resetImperialHeight, inch, feet] = useImperial();
     const[resetValue, setResetValue] = useState(true);
     const[isMetric, setIsMetric] = useState(true);
     const[calculation, setCalculation] = useCalculationContext();
 
     useEffect(() => {
         if (!isMetric){
-            calculateImperialHeight();
+            console.log(imperialHeight);
+            setHeight(imperialHeight);
         }
-    }, [inch, feet])
+    }, [imperialHeight])
 
-    useEffect(() => {
+    useEffectUpdate(() => {
         console.log(height);
         console.log(weight);
         if (height !== "" && weight !== ""){
@@ -118,11 +122,10 @@ export default function Form () {
         }
     }, [height, weight])
 
-    useEffect(() => {
+    useEffectUpdate(() => {
         setWeight("");
         setHeight("");
-        setInch("");
-        setFeet("");
+        resetImperialHeight();
         setCalculation(null);
     }, [isMetric]);
 
@@ -143,23 +146,6 @@ export default function Form () {
         }
     }
 
-    function calculateImperialHeight (){
-        if (inch === "" && feet === ""){
-            setHeight("")
-        } else {
-            let convertedInch = 0;
-            if (inch !== ""){
-                convertedInch = parseFloat(inch);
-            }
-            let convertedFeet = 0;
-            if (feet !== ""){
-                convertedFeet = parseFloat(feet);
-            }
-            const newHeight = convertedInch+12*convertedFeet;
-            setHeight(newHeight)
-        }
-    }
-
     const listOfNumber = Array.from({length: 10}, (_,i) => i.toString());
     const setOfValidCharacter = new Set(listOfNumber.concat(["."]));
 
@@ -172,7 +158,7 @@ export default function Form () {
         }
 
         if (newValue.length > 0 && countInArray((e.target.value).split(""), ".") > 1){
-            console.log("More")
+            // console.log("More")
             inputValid = false;
         }
 
@@ -225,11 +211,11 @@ export default function Form () {
                 </FormBits>
                 <FormBits>
                     <p>Height</p>
-                    <StyledInput value={inch} onChange={(e) => handleChange(e, setInch)}/>
+                    <StyledInput value={inch} onChange={(e) => handleChange(e, (value) => setImperialHeight(value, true))}/>
                     <p>{unit[(isMetric.toString())]["height"]}</p>
                 </FormBits>
                 <FormBits isFeet={true}>
-                <StyledInput value={feet} onChange={(e) => handleChange(e, setFeet)}/>
+                <StyledInput value={feet} onChange={(e) => handleChange(e, (value) => setImperialHeight(value, false))}/>
                     <p>feet</p>
                 </FormBits>
             </FormContainer>
