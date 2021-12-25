@@ -157,7 +157,7 @@ export default function Form () {
         },
         "false" :{
             "weight" : "lbs",
-            "height" : "in",
+            "height" : "inch",
         }
     }
     
