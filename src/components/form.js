@@ -179,7 +179,7 @@ export default function Form () {
                 <FormBits>
                     <p>Height</p>
                     <FormInput>
-                        <StyledInput value={weight} onChange={(e) => handleChange(e, setHeight)}/>
+                        <StyledInput value={height} onChange={(e) => handleChange(e, setHeight)}/>
                         <p>{unit[(isMetric.toString())]["height"]}</p>
                     </FormInput>
                 </FormBits>
