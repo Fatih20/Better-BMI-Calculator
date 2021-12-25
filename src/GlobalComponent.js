@@ -10,10 +10,12 @@ export const GlobalTransition = createGlobalStyle`
 export const VanillaButton = styled.button`
     display: inline-block;
     border: none;
+    cursor: pointer;
+    font-family: 'Inter', sans-serif;
     margin: 0;
     text-decoration: none;
-    cursor: pointer;
     text-align: center;
     -webkit-appearance: none;
     -moz-appearance: none;
+    padding: 0;
 `;

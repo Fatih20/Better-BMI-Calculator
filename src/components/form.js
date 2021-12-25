@@ -4,6 +4,7 @@ import styled from "styled-components";
 import useDebounce from "../customHooks/useDebounce";
 import useEffectUpdate from "../customHooks/useEffectUpdate";
 import useImperial from "../customHooks/useImperial";
+import { VanillaButton } from "../GlobalComponent";
 
 import { useCalculationContext } from "./body";
 
@@ -33,6 +34,7 @@ const StyledInput = styled.input`
     font-size: 18px;
     height: 100%;
     padding: 5px;
+    width: 80px;
 
     &:focus {
         outline-color: black;
@@ -47,9 +49,10 @@ const MetricChoiceContainer = styled.div`
 
 `;
 
-const MetricChoice = styled.p`
+const MetricChoice = styled(VanillaButton)`
+    background-color: rgba(0, 0, 0, 0);
     color: ${({chosen}) => chosen ? "white" : `rgba(255, 255, 255, 0.4)`};
-    margin: 0;
+    font-size: 14px;
 `;
 
 const FormContainer = styled.div`
