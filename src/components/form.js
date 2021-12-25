@@ -55,6 +55,10 @@ const StyledInput = styled.input`
     padding: 5px;
     width: 90px;
 
+    &:-webkit-inner-spin-button, &:-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    }
+
     &:focus {
         outline-color: black;
     }
