@@ -114,12 +114,10 @@ export default function Form () {
                     calculationResult = calculationResult*703;
                 }
                 if (calculationResult !== NaN){
-                    console.log(calculationResult);
                     setCalculation(calculationResult);
                 }   
             }
         } else {
-            console.log("Triggered it");
             setCalculation(null);
         }
     }

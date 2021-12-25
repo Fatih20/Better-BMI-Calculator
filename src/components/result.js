@@ -198,7 +198,6 @@ export default function Result () {
 
     function renderBodyType (indexOfIncludedBodyType){
         const includedBodyType = Object.keys(dataOfBodyType)[indexOfIncludedBodyType]
-        console.log(includedBodyType);
         let align = null;
         if (indexOfCenter === 0){
             if (indexOfIncludedBodyType === 1){
@@ -216,7 +215,6 @@ export default function Result () {
 
     function renderBodyTypeBox (){
         let includedBodyTypeElement = [];
-        console.log(includedBodyTypeProducer("index"));
         includedBodyTypeProducer("index").forEach((element, index) => {
             if (element !== indexOfCenter){
                 includedBodyTypeElement.push(renderBodyType(element));
@@ -226,14 +224,14 @@ export default function Result () {
         if (indexOfCenter !== 0 && indexOfCenter !== Object.keys(dataOfBodyType).length-1){
             includedBodyTypeElement.forEach((element, index) => {
             if ((index+1) % 2 !== 0 ){
-                includedBodyTypeElement.splice(index+1, 0, <Spacer />)
+                includedBodyTypeElement.splice(index+1, 0, <Spacer id={indexOfCenter.toString()+index+element}/>)
             }
             })
         } else {
             if (indexOfCenter === 0){
-                includedBodyTypeElement.splice(0, 0, <Spacer />)
+                includedBodyTypeElement.splice(0, 0, <Spacer id={indexOfCenter.toString()}/>)
             } else if (indexOfCenter === Object.keys(dataOfBodyType).length-1){
-                includedBodyTypeElement.splice(1, 0, <Spacer />)
+                includedBodyTypeElement.splice(1, 0, <Spacer id={indexOfCenter.toString()}/>)
             }
         }
 
@@ -244,7 +242,6 @@ export default function Result () {
         const data = dataProducer()[0];
         const listOfIncludedBodyType = includedBodyTypeProducer("body type");
         let listOfBars = [];
-        console.log(data);
         Object.keys(data).forEach((position, index) => {
             const color = dataOfBodyType[listOfIncludedBodyType[index]]["color"];
             listOfBars.push(
@@ -256,13 +253,7 @@ export default function Result () {
 
 
     if (calculation === null || bodyType === null){
-        // console.log(calculation);
-        // console.log(bodyType);
-        return (
-            <>
-
-            </>
-        )
+        return <></>
     } else {
         return (
             <Main>
