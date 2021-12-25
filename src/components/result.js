@@ -265,8 +265,8 @@ export default function Result () {
                 </BodyTypeContainer>
                 <ChartContainer show={bodyType === "" ? false : true}>
                     <BarChart data={dataProducer()} layout="vertical" width={700} height={100}>
-                        <YAxis dataKey="name" type="category" hide={true}/>
-                        <XAxis xAxisId={0} dataKey="value" type="number" domain={domainProducer()} ticks={tickProducer()} />
+                        <YAxis dataKey="name" type="category" hide={true} />
+                        <XAxis xAxisId={0} dataKey="value" type="number" domain={domainProducer()} ticks={tickProducer()} stroke="white" />
                         {barGenerator()}
                         <ReferenceLine xAxisId={0} x={calculation.toFixed(2)} isFront={true} strokeWidth={bodyType === "Morbidly Obese" ? 0 : 6} stroke="black" />
                         <ReferenceLine xAxisId={0} x={calculation.toFixed(2)} isFront={true} strokeWidth={bodyType === "Morbidly Obese" ? 0 : 3} stroke="white" />
