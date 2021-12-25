@@ -10,24 +10,35 @@ import { useCalculationContext } from "./body";
 const Main = styled.div`
     align-items: center;
     background-color: #333333;
-    border-radius: 5px;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px #000000;
     color : white;
     display: flex;
     flex-direction: column;
     padding: 10px 20px;
 `;
 
-const StyledInput = styled.input`
-    height: 100%;
-`;
-
 const FormBits = styled.div`
     align-items: center;
     display: flex;
+    font-size: 18px;
     gap: 10px;
     justify-content: ${({isFeet}) => isFeet !== undefined || isFeet ? "end" : "start"};
-    width: 250px;
 
+`;
+
+const StyledInput = styled.input`
+    border: solid 1px black;
+    border-radius: 3px;
+    font-size: 18px;
+    font-family: 'Inter', sans-serif;
+    height: 100%;
+    padding: 5px;
+    width: 120px;
+
+    &:focus {
+        outline-color: black;
+    }
 `;
 
 const MetricChoiceContainer = styled.div`
@@ -35,6 +46,7 @@ const MetricChoiceContainer = styled.div`
     justify-content: center;
     gap: 10px;
     padding: 10px 0;
+
 `;
 
 const MetricChoice = styled.p`
