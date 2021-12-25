@@ -36,14 +36,14 @@ const MainResultContainer = styled.div`
 
 const BodyType = styled.h2`
     color: ${({color}) => color};
-    font-size: ${({currentBodyType}) => currentBodyType ? "36px" : null};
+    font-size: ${({deviceWidth}) => deviceWidth < 375 ? "20px" : null};
     margin: 0;
 
     /* border: solid 1px white; */
 `;
 
 const BodyTypeResult = styled(BodyType)`
-    font-size: 36px;
+    font-size: ${({deviceWidth}) => deviceWidth < 375 ? "30px" : "36px"};
 `;
 
 const Spacer = styled.div`
@@ -83,6 +83,16 @@ export default function Result () {
     const [calculation, setCalculation] = useCalculationContext();
     const [bodyType, setBodyType] = useState(null);
     const [indexOfCenter, setIndexOfCenter] = useState(null);
+
+    const deviceWidth = document.documentElement.clientWidth;
+
+    function chartWidth (){
+        if (deviceWidth >= 767){
+            return 700;
+        } else {
+            return deviceWidth-50;
+        }
+    }
 
     useEffect(() => {
         // console.log(bodyType);
@@ -200,7 +210,7 @@ export default function Result () {
             }
         }
         return (
-            <BodyType align={align} currentBodyType={includedBodyType === bodyType ? true : false} id={includedBodyType} color={dataOfBodyType[includedBodyType]["color"]}>{includedBodyType}</BodyType>
+            <BodyType deviceWidth={deviceWidth} align={align} currentBodyType={includedBodyType === bodyType ? true : false} id={includedBodyType} color={dataOfBodyType[includedBodyType]["color"]}>{includedBodyType}</BodyType>
         )
     };
 
@@ -257,14 +267,14 @@ export default function Result () {
         return (
             <Main>
                 <MainResultContainer>
-                    <Index color={dataOfBodyType[bodyType]["color"]}>{calculation.toFixed(2)}</Index>
-                    <BodyTypeResult color={dataOfBodyType[bodyType]["color"]}>{bodyType}</BodyTypeResult>
+                    <Index deviceWidth={deviceWidth} color={dataOfBodyType[bodyType]["color"]}>{calculation.toFixed(2)}</Index>
+                    <BodyTypeResult deviceWidth={deviceWidth} color={dataOfBodyType[bodyType]["color"]}>{bodyType}</BodyTypeResult>
                 </MainResultContainer>
                 <BodyTypeContainer>
                     {renderBodyTypeBox()}
                 </BodyTypeContainer>
                 <ChartContainer show={bodyType === "" ? false : true}>
-                    <BarChart data={dataProducer()} layout="vertical" width={700} height={100}>
+                    <BarChart data={dataProducer()} layout="vertical" width={chartWidth()} height={100}>
                         <YAxis dataKey="name" type="category" hide={true} />
                         <XAxis xAxisId={0} dataKey="value" type="number" domain={domainProducer()} ticks={tickProducer()} stroke="white" />
                         {barGenerator()}
