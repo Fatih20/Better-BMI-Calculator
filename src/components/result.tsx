@@ -1,0 +1,323 @@
+import React, {useState, useEffect, useRef} from "react";
+import styled from "styled-components";
+import { BarChart, Bar, XAxis, ResponsiveContainer, ReferenceLine, YAxis, Label, LabelList } from "recharts";
+
+import Body, { useCalculationContext } from "./body";
+
+import { quantityVariable } from "./body";
+
+const Main = styled.div`
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    padding: 30px 0;
+`;
+
+const Index = styled.h2`
+    color : ${({color} : {color : string}) => color};
+    font-size: 72px;
+    margin: 0;
+`;
+
+const BodyTypeContainer = styled.div`
+    align-items: center;
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    width: 100%;
+    /* border: solid 1px white; */
+`;
+
+const MainResultContainer = styled.div`
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+
+`;
+
+const BodyType = styled.h2`
+    color: ${({color}) => color};
+    font-size: ${({deviceWidth} : {deviceWidth : number}) => deviceWidth < 375 ? "20px" : null};
+    margin: 0;
+
+    /* border: solid 1px white; */
+`;
+
+const BodyTypeResult = styled(BodyType)`
+    font-size: ${({deviceWidth} : {deviceWidth : number}) => deviceWidth < 375 ? "30px" : "36px"};
+`;
+
+const Spacer = styled.div`
+    flex-grow: 1;
+`;
+
+const ChartContainer = styled.div`
+`;
+
+// function swapPosition (array, a, b){
+//     [array[a], array[b]] = [array[b], array[a]]
+// }
+
+function shadeColor(color:string, percent:number) {
+
+    var R = parseInt(color.substring(1,3),16);
+    var G = parseInt(color.substring(3,5),16);
+    var B = parseInt(color.substring(5,7),16);
+
+    R = R * (100 + percent) / 100;
+    G = G * (100 + percent) / 100;
+    B = B * (100 + percent) / 100;
+
+    R = (R<255)?R:255;  
+    G = (G<255)?G:255;  
+    B = (B<255)?B:255;  
+
+    var RR = ((R.toString(16).length===1)?"0"+R.toString(16):R.toString(16));
+    var GG = ((G.toString(16).length===1)?"0"+G.toString(16):G.toString(16));
+    var BB = ((B.toString(16).length===1)?"0"+B.toString(16):B.toString(16));
+
+    return "#"+RR+GG+BB;
+}
+
+
+const possibleBodyType = ["Underweight" , "Normal" , "Overweight" , "Obese" , "Morbidly Obese"] as const;
+type bodyTypeType = typeof possibleBodyType[number];
+
+type listOfBodyTypeType = ["Underweight" , "Normal" , "Overweight" , "Obese" , "Morbidly Obese"];
+
+interface IBodyTypeProperty {
+    "lower" : number,
+    "upper" : number,
+    "color" : string
+}
+
+interface IDataOfBodyType {
+    "Underweight" : IBodyTypeProperty,
+    "Normal" : IBodyTypeProperty,
+    "Overweight" : IBodyTypeProperty,
+    "Obese" : IBodyTypeProperty,
+    "Morbidly Obese" : IBodyTypeProperty
+}
+
+interface IData {
+    bottom? : number,
+    middle? : number,
+    upper? : number
+}
+
+export default function Result () {
+    const [calculation, ] = useCalculationContext();
+    const [bodyType, setBodyType] = useState(null as bodyTypeType | null);
+    const [indexOfCenter, setIndexOfCenter] = useState(null as quantityVariable);
+
+    const deviceWidth = document.documentElement.clientWidth;
+
+    function chartWidth (){
+        if (deviceWidth >= 767){
+            return 700;
+        } else {
+            return deviceWidth-50;
+        }
+    }
+
+    useEffect(() => {
+        // console.log(bodyType);
+        // console.log(calculation);
+        if (calculation !== null){
+            determineBodyTypeAndIndex();
+    }}, [calculation]);
+
+    function determineBodyTypeAndIndex (){
+        let centerBodyType:bodyTypeType;
+        if (calculation !== null){
+            if (calculation < 18.5){
+                centerBodyType = "Underweight"
+            } else if (calculation < 25){
+                centerBodyType = "Normal"
+            } else if (calculation < 30){
+                centerBodyType = "Overweight"
+            } else if (calculation < 40){
+                centerBodyType = "Obese"
+            } else {
+                centerBodyType = "Morbidly Obese"
+            }
+            const indexOfCenter = Object.keys(dataOfBodyType).findIndex((element) => element === centerBodyType);
+            setBodyType(centerBodyType);
+            setIndexOfCenter(indexOfCenter);
+        }
+    }
+
+    const dataOfBodyType : IDataOfBodyType = {
+        "Underweight" : {
+            "lower" : 0,
+            "upper" : 18.5,
+            "color": "#64baff"
+        },
+        "Normal" : {
+            "lower" : 18.5,
+            "upper" : 25,
+            "color": "#68b723"
+        },
+        "Overweight" : {
+            "lower" : 25,
+            "upper" : 30,
+            "color": "#f9c440"
+        },
+        "Obese" : {
+            "lower" : 30,
+            "upper" : 40,
+            "color": "#f37329"
+        },
+        "Morbidly Obese" : {
+            "lower" : 40,
+            "upper" : 60,
+            "color": "#c6262e"
+        },
+    };
+
+    const listOfBodyType : listOfBodyTypeType = ["Underweight" , "Normal" , "Overweight" , "Obese" , "Morbidly Obese"];
+
+    function indexOfIncludedBodyTypeProducer (){
+        if (indexOfCenter !== null){
+            return [indexOfCenter-1, indexOfCenter, indexOfCenter+1].filter(index => index >= 0 && index < listOfBodyType.length);
+        } else {
+            return [];
+        }
+    }
+    
+    function dataProducer (){
+        if (bodyType !== null){
+            let data:IData = {};
+            if (indexOfCenter === Object.keys(dataOfBodyType).length-1){
+                data["middle"] = dataOfBodyType[bodyType]["lower"];
+                data["upper"] = dataOfBodyType[bodyType]["upper"]-dataOfBodyType[bodyType]["lower"];
+            } else if (indexOfCenter === 0){
+                data["bottom"] = dataOfBodyType[bodyType]["upper"];
+                data["middle"] = 2;
+            } else {
+                data["bottom"] = dataOfBodyType[bodyType]["lower"];
+                data["middle"] = dataOfBodyType[bodyType]["upper"]-dataOfBodyType[bodyType]["lower"];
+                data["upper"] = 2;
+            }
+            return data;
+        }
+    }
+
+    function domainProducer (){
+        if (bodyType !== null){
+            let domain = [dataOfBodyType[bodyType]["lower"]-1, dataOfBodyType[bodyType]["upper"]+1];
+            if (indexOfCenter === 0){
+                domain[0] = domain[0]+1;
+            } else if (indexOfCenter === Object.keys(dataOfBodyType).length-1){
+                domain[1] = domain[1]-1;
+            }
+    
+            return domain;
+        }
+    };
+
+    function tickProducer (){
+        if (bodyType !== null){
+            let tick = [dataOfBodyType[bodyType]["lower"], dataOfBodyType[bodyType]["upper"]]
+            if (indexOfCenter === Object.keys(dataOfBodyType).length-1){
+                tick.pop()
+            }
+            return tick;
+
+        } else {
+            return [];
+        }
+    };
+
+    function renderBodyType (indexOfIncludedBodyType : number){
+        if (calculation !== null){
+        }
+        const includedBodyType = listOfBodyType[indexOfIncludedBodyType]
+        let align = null;
+        if (indexOfCenter === 0){
+            if (indexOfIncludedBodyType === 1){
+                align = "end";
+            }
+        } else if (indexOfCenter === Object.keys(dataOfBodyType).length-1){
+            if (indexOfIncludedBodyType === 3){
+                align = "start";
+            }
+        }
+        return (
+            <BodyType deviceWidth={deviceWidth} key={includedBodyType} color={dataOfBodyType[includedBodyType]["color"]}>{includedBodyType}</BodyType>
+        )
+    };
+
+    function renderBodyTypeBox (){
+        if (indexOfCenter !== null){
+            let includedBodyTypeElement : JSX.Element[] = [];
+            indexOfIncludedBodyTypeProducer().forEach((element) => {
+                if (element !== indexOfCenter){
+                    includedBodyTypeElement.push(renderBodyType(element));
+                }
+            })
+    
+            if (indexOfCenter !== 0 && indexOfCenter !== Object.keys(dataOfBodyType).length-1){
+                includedBodyTypeElement.forEach((element, index) => {
+                if ((index+1) % 2 !== 0 ){
+                    includedBodyTypeElement.splice(index+1, 0, <Spacer key={Math.random()}/>)
+                }
+                })
+            } else {
+                if (indexOfCenter === 0){
+                    includedBodyTypeElement.splice(0, 0, <Spacer key={Math.random()}/>)
+                } else if (indexOfCenter === Object.keys(dataOfBodyType).length-1){
+                    includedBodyTypeElement.splice(1, 0, <Spacer key={Math.random()}/>)
+                }
+            }
+            return includedBodyTypeElement;
+
+        }
+
+    }
+
+    function barGenerator (){
+        const data = dataProducer();
+        const listOfIncludedBodyType = indexOfIncludedBodyTypeProducer().map((element) => listOfBodyType[element]);
+        let listOfBars:any[] = [];
+        if (data !== undefined) {
+            Object.keys(data).forEach((position, index) => {
+                const color = dataOfBodyType[listOfIncludedBodyType[index]]["color"];
+                listOfBars.push(
+                    <Bar id={`${index}${position}`} stackId="a" dataKey={position} fill={color} stroke={shadeColor(color, -30)} strokeWidth={1.75}/>
+                )
+            })
+            return listOfBars;
+        } else {
+            return [];
+        }
+
+    };
+
+
+    if (calculation === null || bodyType === null){
+        return <></>
+    } else {
+        return (
+            <Main>
+                <MainResultContainer>
+                    <Index color={dataOfBodyType[bodyType]["color"]}>{calculation.toFixed(2)}</Index>
+                    <BodyTypeResult deviceWidth={deviceWidth} color={dataOfBodyType[bodyType]["color"]}>{bodyType}</BodyTypeResult>
+                </MainResultContainer>
+                <BodyTypeContainer>
+                    {renderBodyTypeBox()}
+                </BodyTypeContainer>
+                <ChartContainer>
+                    <BarChart data={[dataProducer()]} layout="vertical" width={chartWidth()} height={100}>
+                        <YAxis dataKey="name" type="category" hide={true} />
+                        <XAxis xAxisId={0} dataKey="value" type="number" domain={domainProducer()} ticks={tickProducer()} stroke="white" />
+                        {barGenerator()}
+                        <ReferenceLine xAxisId={0} x={calculation.toFixed(2)} isFront={true} strokeWidth={bodyType === "Morbidly Obese" ? 0 : 6} stroke="black" />
+                        <ReferenceLine xAxisId={0} x={calculation.toFixed(2)} isFront={true} strokeWidth={bodyType === "Morbidly Obese" ? 0 : 3} stroke="white" />
+                    </BarChart>
+                </ChartContainer>
+            </Main>
+        )
+    }
+}
